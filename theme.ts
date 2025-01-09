@@ -6,4 +6,5 @@ export const theme = {
   colorBlack: "#000",
   colorGrey: "grey",
   colorLightGrey: "#eee",
+  colorError: "#ee6055",
 };
