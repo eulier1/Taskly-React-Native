@@ -13,3 +13,6 @@ Below the greastest hits in docs ref used
 ## Navigation
 ### [React Navigation](https://reactnavigation.org/)
 ### [React Navigation](https://docs.expo.dev/router/installation/#quick-start)
+
+## Input
+### [Text Input](https://reactnative.dev/docs/textinput)
