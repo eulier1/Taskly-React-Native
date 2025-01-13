@@ -34,4 +34,4 @@ The anatomy is made of, Visible Area and subset of elements on top and bottom.
 ## Toggle/Pressable
 ### [Using Pressable](https://reactnative.dev/docs/pressable)
 
-Use case : Toggle element like below
+Use case : Toggle element like [this video](https://github.com/eulier1/Taskly-React-Native/pull/4#issuecomment-2587668946)
