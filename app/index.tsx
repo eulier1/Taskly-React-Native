@@ -1,11 +1,4 @@
-import {
-  StyleSheet,
-  TextInput,
-  ScrollView,
-  FlatList,
-  View,
-  Text,
-} from "react-native";
+import { StyleSheet, TextInput, FlatList, View, Text } from "react-native";
 import { theme } from "../theme";
 import { useState } from "react";
 import { ShoppingListItem } from "../components/ShoppingList";
@@ -13,6 +6,7 @@ import { ShoppingListItem } from "../components/ShoppingList";
 type ShoppingListItemType = {
   id: string;
   name: string;
+  completeAtTimestamp?: number;
 };
 
 // const testList: ShoppingListItemType[] = Array(20)
@@ -58,6 +52,21 @@ export default function App() {
     }
   };
 
+  const handleToggleCompleted = (id: string) => {
+    const newShoppingList = shoppingList.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          completeAtTimestamp: item.completeAtTimestamp
+            ? undefined
+            : Date.now(),
+        };
+      }
+      return item;
+    });
+    setShoppingList(newShoppingList);
+  };
+
   return (
     <FlatList
       data={shoppingList}
@@ -67,6 +76,8 @@ export default function App() {
           <ShoppingListItem
             name={item.name}
             onDelete={() => handleDelete(item.id)}
+            onToggleComplete={() => handleToggleCompleted(item.id)}
+            isCompleted={Boolean(item.completeAtTimestamp)}
           />
         );
       }}
