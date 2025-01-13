@@ -38,8 +38,14 @@ const initialList: ShoppingListItemType[] = [
 ];
 
 export default function App() {
-  const [shoppingList, setsShoppingList] = useState<ShoppingListItemType[]>([]);
+  const [shoppingList, setShoppingList] =
+    useState<ShoppingListItemType[]>(initialList);
   const [value, setValue] = useState<string>("");
+
+  const handleDelete = (id: string) => {
+    const newShoppingList = shoppingList.filter((item) => item.id !== id);
+    setShoppingList(newShoppingList);
+  };
 
   const handleSubmit = () => {
     if (value) {
@@ -47,7 +53,7 @@ export default function App() {
         { id: new Date().toTimeString(), name: value },
         ...shoppingList,
       ];
-      setsShoppingList(newShoppingList);
+      setShoppingList(newShoppingList);
       setValue("");
     }
   };
@@ -57,7 +63,12 @@ export default function App() {
       data={shoppingList}
       renderItem={({ item }) => {
         console.log(item);
-        return <ShoppingListItem name={item.name} />;
+        return (
+          <ShoppingListItem
+            name={item.name}
+            onDelete={() => handleDelete(item.id)}
+          />
+        );
       }}
       stickyHeaderIndices={[0]}
       style={styles.container}
