@@ -15,16 +15,30 @@ type ShoppingListItemType = {
   name: string;
 };
 
-const initialList: ShoppingListItemType[] = Array(10000)
-  .fill(() => ({}))
-  .map((_, index) => ({
-    id: index.toString(),
-    name: "Cocoa",
-  }));
+// const testList: ShoppingListItemType[] = Array(20)
+//   .fill(() => ({}))
+//   .map((_, index) => ({
+//     id: index.toString(),
+//     name: "Cocoa",
+//   }));
+
+const initialList: ShoppingListItemType[] = [
+  {
+    id: "1",
+    name: "Coffee",
+  },
+  {
+    id: "2",
+    name: "Tea",
+  },
+  {
+    id: "3",
+    name: "Milk",
+  },
+];
 
 export default function App() {
-  const [shoppingList, setsShoppingList] =
-    useState<ShoppingListItemType[]>(initialList);
+  const [shoppingList, setsShoppingList] = useState<ShoppingListItemType[]>([]);
   const [value, setValue] = useState<string>("");
 
   const handleSubmit = () => {
@@ -43,16 +57,16 @@ export default function App() {
       data={shoppingList}
       renderItem={({ item }) => {
         console.log(item);
-        return (
-          <View>
-            <Text>{item.id}</Text>
-            <ShoppingListItem name={item.name} />
-          </View>
-        );
+        return <ShoppingListItem name={item.name} />;
       }}
       stickyHeaderIndices={[0]}
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
+      ListEmptyComponent={
+        <View style={styles.listEmptyContainer}>
+          <Text>Your Shopping List is Empty</Text>
+        </View>
+      }
       ListHeaderComponent={
         <TextInput
           placeholder="E.g. Coffee"
@@ -75,6 +89,12 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingTop: 12,
+  },
+  listEmptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 18,
   },
   textInput: {
     borderColor: theme.colorLightGrey,
