@@ -6,7 +6,8 @@ import { ShoppingListItem } from "../components/ShoppingList";
 type ShoppingListItemType = {
   id: string;
   name: string;
-  completeAtTimestamp?: number;
+  completedAtTimestamp?: number;
+  lastUpdatedTimestamp: number;
 };
 
 // const testList: ShoppingListItemType[] = Array(20)
@@ -20,14 +21,17 @@ const initialList: ShoppingListItemType[] = [
   {
     id: "1",
     name: "Coffee",
+    lastUpdatedTimestamp: Date.now() + 1,
   },
   {
     id: "2",
     name: "Tea",
+    lastUpdatedTimestamp: Date.now() + 2,
   },
   {
     id: "3",
     name: "Milk",
+    lastUpdatedTimestamp: Date.now() + 3,
   },
 ];
 
@@ -44,7 +48,11 @@ export default function App() {
   const handleSubmit = () => {
     if (value) {
       const newShoppingList = [
-        { id: new Date().toTimeString(), name: value },
+        {
+          id: new Date().toTimeString(),
+          name: value,
+          lastUpdatedTimestamp: Date.now(),
+        },
         ...shoppingList,
       ];
       setShoppingList(newShoppingList);
@@ -57,7 +65,8 @@ export default function App() {
       if (item.id === id) {
         return {
           ...item,
-          completeAtTimestamp: item.completeAtTimestamp
+          lastUpdatedTimestamp: Date.now(),
+          completedAtTimestamp: item.completedAtTimestamp
             ? undefined
             : Date.now(),
         };
@@ -69,7 +78,7 @@ export default function App() {
 
   return (
     <FlatList
-      data={shoppingList}
+      data={orderShoppingList(shoppingList)}
       renderItem={({ item }) => {
         console.log(item);
         return (
@@ -77,7 +86,7 @@ export default function App() {
             name={item.name}
             onDelete={() => handleDelete(item.id)}
             onToggleComplete={() => handleToggleCompleted(item.id)}
-            isCompleted={Boolean(item.completeAtTimestamp)}
+            isCompleted={Boolean(item.completedAtTimestamp)}
           />
         );
       }}
@@ -104,10 +113,33 @@ export default function App() {
   );
 }
 
+function orderShoppingList(shoppingList: ShoppingListItemType[]) {
+  return shoppingList.sort((item1, item2) => {
+    if (item1.completedAtTimestamp && item2.completedAtTimestamp) {
+      return item2.completedAtTimestamp - item1.completedAtTimestamp;
+    }
+
+    if (item1.completedAtTimestamp && !item2.completedAtTimestamp) {
+      return 1;
+    }
+
+    if (!item1.completedAtTimestamp && item2.completedAtTimestamp) {
+      return -1;
+    }
+
+    if (!item1.completedAtTimestamp && !item2.completedAtTimestamp) {
+      return item2.lastUpdatedTimestamp - item1.lastUpdatedTimestamp;
+    }
+
+    return 0;
+  });
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    paddingVertical: 12,
   },
   contentContainer: {
     paddingTop: 12,
