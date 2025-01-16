@@ -30,3 +30,8 @@ This is similar to Tuples, a **fixed** length of elements, generally of differen
 Use Cases : For large dataset, (i.e. data from a server).
 Behind the scene it use Sliding Window Technique, it keep tracks the visible area you have in your device and it doesn't render items way outside of the visible area and unmount items that you have scroll past.
 The anatomy is made of, Visible Area and subset of elements on top and bottom.
+
+## Toggle/Pressable
+### [Using Pressable](https://reactnative.dev/docs/pressable)
+
+Use case : Toggle element like [this video](https://github.com/eulier1/Taskly-React-Native/pull/4#issuecomment-2587668946)

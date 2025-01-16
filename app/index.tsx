@@ -1,63 +1,111 @@
 import {
   StyleSheet,
   TextInput,
-  ScrollView,
   FlatList,
   View,
   Text,
+  LayoutAnimation,
 } from "react-native";
 import { theme } from "../theme";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ShoppingListItem } from "../components/ShoppingList";
+import { getFromStorage, saveToStorage } from "../storage";
 
-type ShoppingListItemType = {
+export type ShoppingListItemType = {
   id: string;
   name: string;
+  completedAtTimestamp?: number;
+  lastUpdatedTimestamp: number;
 };
 
-// const testList: ShoppingListItemType[] = Array(20)
-//   .fill(() => ({}))
-//   .map((_, index) => ({
-//     id: index.toString(),
-//     name: "Cocoa",
-//   }));
+const storageKey = "shopping-list";
 
 const initialList: ShoppingListItemType[] = [
   {
     id: "1",
     name: "Coffee",
+    lastUpdatedTimestamp: Date.now() + 1,
   },
   {
     id: "2",
     name: "Tea",
+    lastUpdatedTimestamp: Date.now() + 2,
   },
   {
     id: "3",
     name: "Milk",
+    lastUpdatedTimestamp: Date.now() + 3,
   },
 ];
 
 export default function App() {
-  const [shoppingList, setsShoppingList] = useState<ShoppingListItemType[]>([]);
+  const [shoppingList, setShoppingList] = useState<ShoppingListItemType[]>([]);
   const [value, setValue] = useState<string>("");
+
+  useEffect(() => {
+    async function fetchInitial() {
+      const data = await getFromStorage(storageKey);
+      if (data) {
+        setShoppingList(data);
+      }
+    }
+    fetchInitial();
+  }, []);
+
+  const handleDelete = (id: string) => {
+    const newShoppingList = shoppingList.filter((item) => item.id !== id);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShoppingList(newShoppingList);
+  };
 
   const handleSubmit = () => {
     if (value) {
       const newShoppingList = [
-        { id: new Date().toTimeString(), name: value },
+        {
+          id: new Date().toTimeString(),
+          name: value,
+          lastUpdatedTimestamp: Date.now(),
+        },
         ...shoppingList,
       ];
-      setsShoppingList(newShoppingList);
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setShoppingList(newShoppingList);
+      saveToStorage(storageKey, newShoppingList);
       setValue("");
     }
   };
 
+  const handleToggleCompleted = (id: string) => {
+    const newShoppingList = shoppingList.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          lastUpdatedTimestamp: Date.now(),
+          completedAtTimestamp: item.completedAtTimestamp
+            ? undefined
+            : Date.now(),
+        };
+      }
+      return item;
+    });
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShoppingList(newShoppingList);
+    saveToStorage(storageKey, newShoppingList);
+  };
+
   return (
     <FlatList
-      data={shoppingList}
+      data={orderShoppingList(shoppingList)}
       renderItem={({ item }) => {
         console.log(item);
-        return <ShoppingListItem name={item.name} />;
+        return (
+          <ShoppingListItem
+            name={item.name}
+            onDelete={() => handleDelete(item.id)}
+            onToggleComplete={() => handleToggleCompleted(item.id)}
+            isCompleted={Boolean(item.completedAtTimestamp)}
+          />
+        );
       }}
       stickyHeaderIndices={[0]}
       style={styles.container}
@@ -82,10 +130,33 @@ export default function App() {
   );
 }
 
+function orderShoppingList(shoppingList: ShoppingListItemType[]) {
+  return shoppingList.sort((item1, item2) => {
+    if (item1.completedAtTimestamp && item2.completedAtTimestamp) {
+      return item2.completedAtTimestamp - item1.completedAtTimestamp;
+    }
+
+    if (item1.completedAtTimestamp && !item2.completedAtTimestamp) {
+      return 1;
+    }
+
+    if (!item1.completedAtTimestamp && item2.completedAtTimestamp) {
+      return -1;
+    }
+
+    if (!item1.completedAtTimestamp && !item2.completedAtTimestamp) {
+      return item2.lastUpdatedTimestamp - item1.lastUpdatedTimestamp;
+    }
+
+    return 0;
+  });
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    paddingVertical: 12,
   },
   contentContainer: {
     paddingTop: 12,
