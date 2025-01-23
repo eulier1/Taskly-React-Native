@@ -1,6 +1,12 @@
 # Taskly App
 A shopping list and a reminder
 
+
+https://github.com/user-attachments/assets/56be56ce-4849-4d03-94c8-322c0534165d
+
+
+
+
 Below the greastest hits in docs ref used 
 
 ## Formatting
