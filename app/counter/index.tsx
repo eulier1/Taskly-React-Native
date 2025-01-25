@@ -6,6 +6,7 @@ import * as Notification from "expo-notifications";
 import { useEffect, useState } from "react";
 
 import { intervalToDuration, isBefore } from "date-fns";
+import { TimeSegment } from "../../components/TimeSegment";
 
 // 10 seconds from now for testing purpose
 const timestamp = Date.now() + 10 * 1000;
@@ -29,12 +30,12 @@ export default function CounterScreen() {
       const distance = intervalToDuration(
         isOverdue
           ? {
-              start: Date.now(),
-              end: timestamp,
-            }
-          : {
               start: timestamp,
               end: Date.now(),
+            }
+          : {
+              start: Date.now(),
+              end: timestamp,
             },
       );
       setStatus({ distance, isOverdue });
@@ -68,13 +69,49 @@ export default function CounterScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        status.isOverdue ? styles.containerLate : undefined,
+      ]}
+    >
+      {status.isOverdue ? (
+        <Text style={[styles.heading, styles.textWhite]}>
+          {" "}
+          Things overdue by{" "}
+        </Text>
+      ) : (
+        <Text style={styles.heading}> Things due in ... </Text>
+      )}
+
+      <View style={styles.row}>
+        <TimeSegment
+          unit="Days"
+          number={status.distance.days ?? 0}
+          textStyle={status.isOverdue ? styles.textWhite : undefined}
+        ></TimeSegment>
+        <TimeSegment
+          unit="Hours"
+          number={status.distance.hours ?? 0}
+          textStyle={status.isOverdue ? styles.textWhite : undefined}
+        ></TimeSegment>
+        <TimeSegment
+          unit="Minutes"
+          number={status.distance.minutes ?? 0}
+          textStyle={status.isOverdue ? styles.textWhite : undefined}
+        ></TimeSegment>
+        <TimeSegment
+          unit="Seconds"
+          number={status.distance.seconds ?? 0}
+          textStyle={status.isOverdue ? styles.textWhite : undefined}
+        ></TimeSegment>
+      </View>
       <TouchableOpacity
         style={styles.button}
         activeOpacity={0.8}
         onPress={handleRequestPermission}
       >
-        <Text style={styles.buttonText}>Request Permission</Text>
+        <Text style={styles.buttonText}>I've done the thing</Text>
       </TouchableOpacity>
     </View>
   );
@@ -97,5 +134,20 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     fontWeight: "bold",
     textTransform: "uppercase",
+  },
+  row: {
+    flexDirection: "row",
+    marginBottom: 24,
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 24,
+  },
+  containerLate: {
+    backgroundColor: theme.colorError,
+  },
+  textWhite: {
+    color: theme.colorWhite,
   },
 });
