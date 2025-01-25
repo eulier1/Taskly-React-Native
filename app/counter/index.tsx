@@ -5,12 +5,39 @@ import * as Device from "expo-device";
 import * as Notification from "expo-notifications";
 import { useEffect, useState } from "react";
 
+import { intervalToDuration, isBefore } from "date-fns";
+
+// 10 seconds from now for testing purpose
+const timestamp = Date.now() + 10 * 1000;
+
+type CountdownStatus = {
+  isOverdue: boolean;
+  distance: ReturnType<typeof intervalToDuration>;
+};
+
 export default function CounterScreen() {
-  const [secondsElapsed, setSecondsElapsed] = useState(0);
+  const [status, setStatus] = useState<CountdownStatus>({
+    isOverdue: false,
+    distance: {},
+  });
+
+  console.log(status);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      setSecondsElapsed((value) => value + 1);
+      const isOverdue = isBefore(timestamp, Date.now());
+      const distance = intervalToDuration(
+        isOverdue
+          ? {
+              start: Date.now(),
+              end: timestamp,
+            }
+          : {
+              start: timestamp,
+              end: Date.now(),
+            },
+      );
+      setStatus({ distance, isOverdue });
     }, 1000);
     return () => {
       clearInterval(intervalId);
@@ -42,7 +69,6 @@ export default function CounterScreen() {
 
   return (
     <View style={styles.container}>
-      <Text>{secondsElapsed}</Text>
       <TouchableOpacity
         style={styles.button}
         activeOpacity={0.8}
