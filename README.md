@@ -1,10 +1,13 @@
 # Taskly App
-A shopping list and a reminder
+A shopping list and a reminder/scheduler
 
 
-https://github.com/user-attachments/assets/56be56ce-4849-4d03-94c8-322c0534165d
+## Android
+https://github.com/user-attachments/assets/fe3601ce-c50a-40fb-9f76-9bf29141efd2
 
 
+## iOS
+https://github.com/user-attachments/assets/5045503b-08c6-4515-9204-c28b14c396e3
 
 
 Below the greastest hits in docs ref used 
