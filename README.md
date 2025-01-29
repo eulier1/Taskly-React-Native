@@ -41,3 +41,14 @@ The anatomy is made of, Visible Area and subset of elements on top and bottom.
 ### [Using Pressable](https://reactnative.dev/docs/pressable)
 
 Use case : Toggle element like [this video](https://github.com/eulier1/Taskly-React-Native/pull/4#issuecomment-2587668946)
+
+## Animate
+### [Custom animation with Reanimate](https://docs.swmansion.com/react-native-reanimated/)
+
+## Haptics
+### [Vibration Feedback](https://docs.expo.dev/versions/latest/sdk/haptics/)
+
+## Confetti
+### [Show a Confetti animation](https://www.npmjs.com/package/react-native-confetti-cannon)
+
+
