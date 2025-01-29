@@ -7,9 +7,17 @@ import { useEffect, useState } from "react";
 
 import { intervalToDuration, isBefore } from "date-fns";
 import { TimeSegment } from "../../components/TimeSegment";
+import { getFromStorage, saveToStorage } from "../../storage";
 
-// 10 seconds from now for testing purpose
-const timestamp = Date.now() + 10 * 1000;
+// Hard-coded reminder of task
+const frequency = 10 * 1000;
+
+const countdownStorageKey = "taskly-countdown";
+
+type PersistentCountdownState = {
+  currentNotificationId: string | undefined;
+  completedAtTimestamps: number[];
+};
 
 type CountdownStatus = {
   isOverdue: boolean;
@@ -17,15 +25,33 @@ type CountdownStatus = {
 };
 
 export default function CounterScreen() {
+  const [countdownState, setCountdownState] =
+    useState<PersistentCountdownState>();
+
   const [status, setStatus] = useState<CountdownStatus>({
     isOverdue: false,
     distance: {},
   });
 
-  console.log(status);
+  const lastCompletedTimestamp = countdownState?.completedAtTimestamps[0];
+
+  useEffect(() => {
+    const initStorage = async () => {
+      try {
+        const data = await getFromStorage(countdownStorageKey);
+        setCountdownState(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    initStorage();
+  }, []);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
+      const timestamp = lastCompletedTimestamp
+        ? lastCompletedTimestamp + frequency
+        : Date.now();
       const isOverdue = isBefore(timestamp, Date.now());
       const distance = intervalToDuration(
         isOverdue
@@ -41,15 +67,17 @@ export default function CounterScreen() {
       setStatus({ distance, isOverdue });
     }, 1000);
     return () => {
+      console.log("When this is called");
       clearInterval(intervalId);
     };
-  }, []);
+  }, [lastCompletedTimestamp]);
 
-  const handleRequestPermission = async () => {
+  const scheduleNotification = async () => {
+    let pushNotificationId;
     const result = await registerForPushNotificationsAsync();
     console.log(result);
     if (result === "granted") {
-      await Notification.scheduleNotificationAsync({
+      pushNotificationId = await Notification.scheduleNotificationAsync({
         content: {
           title: "I'm a notification from your app",
         },
@@ -66,6 +94,22 @@ export default function CounterScreen() {
         );
       }
     }
+
+    if (countdownState?.currentNotificationId) {
+      await Notification.cancelScheduledNotificationAsync(
+        countdownState.currentNotificationId,
+      );
+    }
+
+    const newCountdownState: PersistentCountdownState = {
+      currentNotificationId: pushNotificationId,
+      completedAtTimestamps: countdownState
+        ? [Date.now(), ...countdownState.completedAtTimestamps]
+        : [Date.now()],
+    };
+
+    setCountdownState(newCountdownState);
+    await saveToStorage(countdownStorageKey, newCountdownState);
   };
 
   return (
@@ -109,7 +153,7 @@ export default function CounterScreen() {
       <TouchableOpacity
         style={styles.button}
         activeOpacity={0.8}
-        onPress={handleRequestPermission}
+        onPress={scheduleNotification}
       >
         <Text style={styles.buttonText}>I've done the thing</Text>
       </TouchableOpacity>
