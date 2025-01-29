@@ -1,4 +1,11 @@
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import { theme } from "../../theme";
 import { registerForPushNotificationsAsync } from "../../utils/registerForPushNotificationAsync";
 import * as Device from "expo-device";
@@ -33,6 +40,8 @@ export default function CounterScreen() {
     distance: {},
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const lastCompletedTimestamp = countdownState?.completedAtTimestamps[0];
 
   useEffect(() => {
@@ -65,9 +74,9 @@ export default function CounterScreen() {
             },
       );
       setStatus({ distance, isOverdue });
+      setIsLoading(false);
     }, 1000);
     return () => {
-      console.log("When this is called");
       clearInterval(intervalId);
     };
   }, [lastCompletedTimestamp]);
@@ -111,6 +120,14 @@ export default function CounterScreen() {
     setCountdownState(newCountdownState);
     await saveToStorage(countdownStorageKey, newCountdownState);
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.activityIndicatorContainer}>
+        <ActivityIndicator></ActivityIndicator>
+      </View>
+    );
+  }
 
   return (
     <View
@@ -193,5 +210,11 @@ const styles = StyleSheet.create({
   },
   textWhite: {
     color: theme.colorWhite,
+  },
+  activityIndicatorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: theme.colorWhite,
   },
 });
